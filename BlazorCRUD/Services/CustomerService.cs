@@ -20,19 +20,23 @@ namespace BlazorCRUD.Services
         #endregion
 
         public async Task<List<Customer>> GetCustomers() => await httpClient.GetJsonAsync<List<Customer>>("api/GetAllCustomer");
-        public async Task<bool> SaveCustomer(Customer customer)
+        public async Task<string> SaveCustomer(Customer customer)
         {
-            await httpClient.PostJsonAsync("api/CreateCustomer", customer);
-            return true;
+            if(customer.Id is 0)
+            {
+                await httpClient.PostJsonAsync("api/CreateCustomer", customer);
+                return "Customer Saved";
+            }
+            else
+            {
+                await httpClient.PutJsonAsync("api/UpdateCustomer", customer);
+                return "Customer Updated";
+
+            }
         }
         public async Task<bool> DeleteCustomer(int Id)
         {
             await httpClient.DeleteAsync($"api/Delete?Id={Id}");
-            return true;
-        }
-        public async Task<bool> UpdateCustomer(Customer customer)
-        {
-            await httpClient.PutJsonAsync("api/UpdateCustomer", customer);
             return true;
         }
     }

@@ -6,9 +6,8 @@ namespace BlazorCRUD.Services
 {
    public interface ICustomerService
    {
-       Task<List<Customer>> GetCustomers();
-        Task<bool> SaveCustomer(Customer customer);
+        Task<List<Customer>> GetCustomers();
+        Task<string> SaveCustomer(Customer customer);
         Task<bool> DeleteCustomer(int Id);
-        Task<bool> UpdateCustomer(Customer customer);
    }
 }
