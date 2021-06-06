@@ -66,7 +66,7 @@
     }
     private bool Search(Customer customer)
     {
-        if ( customer.FirstName is not null && customer.LastName is not null && customer.ContactNumber is not null &&
+        if (customer.FirstName is not null && customer.LastName is not null && customer.ContactNumber is not null &&
             customer.FirstName.Contains(searchString, StringComparison.OrdinalIgnoreCase)
             || customer.LastName.Contains(searchString, StringComparison.OrdinalIgnoreCase)
             || customer.ContactNumber.Contains(searchString, StringComparison.OrdinalIgnoreCase))
@@ -81,11 +81,13 @@
         if (customer.Id is 0)
         {
             await customerService.SaveCustomer(customer);
+            customer = new();
             snackBar.Add("Customer Saved.", Severity.Success);
         }
         else
         {
             await customerService.UpdateCustomer(customer);
+            customer = new();
             snackBar.Add("Customer updated.", Severity.Success);
         }
 
