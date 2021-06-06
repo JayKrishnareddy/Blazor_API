@@ -20,13 +20,14 @@
     </MudCardContent>
 </MudCard>
 <br />
-@*<MudTable Elevation="25" Items="GetAllCustomers()" Filter="new Func<Customer, bool>(Search)" @bind-customer="customer">
+<MudTable Elevation="25" Items="GetAllCustomers()" Filter="new Func<Customer, bool>(Search)" @bind-customer="customer">
     <ToolBarContent>
         <MudText Typo="Typo.h6">Customers</MudText>
         <MudToolBarSpacer />
         <MudTextField @bind-Value="searchString" Placeholder="Search for Customers..." Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
     </ToolBarContent>
     <HeaderContent>
+        <MudTh>Id</MudTh>
         <MudTh>First Name</MudTh>
         <MudTh>Last Name</MudTh>
         <MudTh>Phone Number</MudTh>
@@ -42,10 +43,12 @@
             <MudFab @onclick="@(()=>Delete(@context.Id))" Color="Color.Secondary" Icon="@Icons.Material.Filled.Delete" Size="Size.Small" IconSize="Size.Small" />
         </MudTd>
     </RowTemplate>
-</MudTable>*@
+    <PagerContent>
+        <MudTablePager PageSizeOptions="new int[] { 5,10,20,50}"/>
+    </PagerContent>
+</MudTable>
 
 @code{
-    private bool hover = false;
     private string searchString = "";
 
     private Customer customer = new(); //C# 9 Syntax
@@ -56,15 +59,15 @@
         GetAllCustomers();
     }
 
-    private async Task<List<Customer>> GetAllCustomers()
+    private List<Customer> GetAllCustomers()
     {
-        customers = await customerService.GetCustomers();
+        customers = Task.Run(() => customerService.GetCustomers()).GetAwaiter().GetResult();
         return customers;
     }
     private bool Search(Customer customer)
     {
-        if (string.IsNullOrWhiteSpace(searchString)) return true;
-        if (customer.FirstName.Contains(searchString, StringComparison.OrdinalIgnoreCase)
+        if ( customer.FirstName is not null && customer.LastName is not null && customer.ContactNumber is not null &&
+            customer.FirstName.Contains(searchString, StringComparison.OrdinalIgnoreCase)
             || customer.LastName.Contains(searchString, StringComparison.OrdinalIgnoreCase)
             || customer.ContactNumber.Contains(searchString, StringComparison.OrdinalIgnoreCase))
         {
@@ -75,18 +78,27 @@
 
     private async void Save()
     {
-       await customerService.SaveCustomer(customer);
-        snackBar.Add("Customer Saved.", Severity.Success);
-        await GetAllCustomers();
+        if (customer.Id is 0)
+        {
+            await customerService.SaveCustomer(customer);
+            snackBar.Add("Customer Saved.", Severity.Success);
+        }
+        else
+        {
+            await customerService.UpdateCustomer(customer);
+            snackBar.Add("Customer updated.", Severity.Success);
+        }
+
+        GetAllCustomers();
     }
-    private async void Edit(int id)
+    private void Edit(int id)
     {
         customer = customers.FirstOrDefault(c => c.Id == id);
     }
     private async void Delete(int id)
     {
-        // customerService.DeleteCustomer(id);
-        snackBar.Add("Customer Deleted.", Severity.Success);
-        await GetAllCustomers();
+        await customerService.DeleteCustomer(id);
+        snackBar.Add("Customer Data Deleted.", Severity.Success);
+        GetAllCustomers();
     }
 }

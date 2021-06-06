@@ -25,5 +25,15 @@ namespace BlazorCRUD.Services
             await httpClient.PostJsonAsync("api/CreateCustomer", customer);
             return true;
         }
+        public async Task<bool> DeleteCustomer(int Id)
+        {
+            await httpClient.DeleteAsync($"api/Delete?Id={Id}");
+            return true;
+        }
+        public async Task<bool> UpdateCustomer(Customer customer)
+        {
+            await httpClient.PutJsonAsync("api/UpdateCustomer", customer);
+            return true;
+        }
     }
 }
